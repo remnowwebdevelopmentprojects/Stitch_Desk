@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - {{invoice_number}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.5;
+            background: #fff;
+        }
+
+        .container {
+            padding: 40px;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        .logo-section {
+            flex: 1;
+        }
+
+        .logo-section img {
+            max-width: 140px;
+            max-height: 90px;
+            margin-bottom: 15px;
+        }
+
+        .shop-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4F46E5;
+            margin-bottom: 10px;
+        }
+
+        .shop-details {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .invoice-header {
+            text-align: right;
+            flex: 1;
+        }
+
+        .invoice-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: #fff;
+            padding: 8px 25px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .invoice-meta div {
+            margin-bottom: 6px;
+        }
+
+        .invoice-meta strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Customer Section */
+        .billing-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 35px;
+            gap: 30px;
+        }
+
+        .bill-to {
+            flex: 1;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 8px;
+            border-left: 4px solid #4F46E5;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: #4F46E5;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .customer-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .customer-details {
+            font-size: 11px;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .items-table thead tr {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: #fff;
+        }
+
+        .items-table th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .items-table th.text-center {
+            text-align: center;
+        }
+
+        .items-table th.text-right {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 14px 12px;
+            font-size: 11px;
+            vertical-align: top;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .items-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .items-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 35px;
+        }
+
+        .summary-table {
+            width: 320px;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .summary-table td {
+            padding: 12px 15px;
+            font-size: 12px;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-table td:first-child {
+            text-align: right;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .summary-table td:last-child {
+            text-align: right;
+            width: 120px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .summary-table .grand-total td {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            border-bottom: none;
+        }
+
+        .summary-table .grand-total td:first-child {
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Footer Section */
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .terms-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4F46E5;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terms-content {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .thank-you {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #4F46E5;
+        }
+
+        .contact-strip {
+            margin-top: 30px;
+            padding: 15px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: #fff;
+            text-align: center;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                {{logo_url}}
+                <div class="shop-name">{{shop_name}}</div>
+                <div class="shop-details">
+                    {{shop_address}}<br>
+                    Phone: {{shop_phone}}<br>
+                    {{shop_gst}}
+                </div>
+            </div>
+            <div class="invoice-header">
+                <div class="invoice-badge">INVOICE</div>
+                <div class="invoice-meta">
+                    <div><strong>Invoice No:</strong> {{invoice_number}}</div>
+                    <div><strong>Date:</strong> {{invoice_date}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div class="billing-section">
+            <div class="bill-to">
+                <div class="section-label">Bill To</div>
+                <div class="customer-name">{{customer_name}}</div>
+                <div class="customer-details">
+                    {{customer_address}}<br>
+                    Phone: {{customer_phone}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 8%;">S.No</th>
+                    <th style="width: 42%;">Item Description</th>
+                    <th class="text-center" style="width: 15%;">Qty / Unit</th>
+                    <th class="text-right" style="width: 17%;">Unit Price</th>
+                    <th class="text-right" style="width: 18%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{items}}
+            </tbody>
+        </table>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <table class="summary-table">
+                <tr>
+                    <td>Subtotal</td>
+                    <td>{{subtotal}}</td>
+                </tr>
+                {{show_intrastate}}
+                <tr>
+                    <td>CGST ({{cgst_percent}}%)</td>
+                    <td>{{cgst_amount}}</td>
+                </tr>
+                <tr>
+                    <td>SGST ({{sgst_percent}}%)</td>
+                    <td>{{sgst_amount}}</td>
+                </tr>
+                {{/show_intrastate}}
+                {{show_interstate}}
+                <tr>
+                    <td>IGST ({{igst_percent}}%)</td>
+                    <td>{{igst_amount}}</td>
+                </tr>
+                {{/show_interstate}}
+                <tr class="grand-total">
+                    <td>Total Amount</td>
+                    <td>{{total_amount}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="terms-title">Terms & Conditions</div>
+            <div class="terms-content">{{terms}}</div>
+        </div>
+
+        <div class="thank-you">Thank you for choosing us!</div>
+
+        <div class="contact-strip">
+            {{shop_name}} | {{shop_phone}} | {{shop_email}}
+        </div>
+    </div>
+</body>
+</html>

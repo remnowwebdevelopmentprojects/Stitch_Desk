@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - {{invoice_number}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.6;
+            background: #fff;
+        }
+
+        .container {
+            padding: 20px 0;
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .logo-section {
+            flex: 1;
+        }
+
+        .logo-section img {
+            max-width: 100px;
+            max-height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .shop-name {
+            font-size: 22px;
+            font-weight: 300;
+            color: #222;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .shop-details {
+            font-size: 10px;
+            color: #888;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .invoice-header {
+            text-align: right;
+            flex: 1;
+        }
+
+        .invoice-title {
+            font-size: 11px;
+            font-weight: 400;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .invoice-number {
+            font-size: 24px;
+            font-weight: 300;
+            color: #222;
+            margin-bottom: 15px;
+        }
+
+        .invoice-date {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* Customer Section */
+        .billing-section {
+            margin-bottom: 50px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .customer-name {
+            font-size: 16px;
+            font-weight: 400;
+            color: #222;
+            margin-bottom: 6px;
+        }
+
+        .customer-details {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table thead tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .items-table th {
+            padding: 12px 0;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 400;
+            color: #888;
+        }
+
+        .items-table th.text-center {
+            text-align: center;
+        }
+
+        .items-table th.text-right {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 16px 0;
+            font-size: 11px;
+            vertical-align: top;
+            border-bottom: 1px solid #f0f0f0;
+            font-weight: 300;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 50px;
+        }
+
+        .summary-table {
+            width: 280px;
+        }
+
+        .summary-table td {
+            padding: 10px 0;
+            font-size: 11px;
+            border: none;
+        }
+
+        .summary-table td:first-child {
+            text-align: right;
+            color: #888;
+            font-weight: 300;
+            padding-right: 20px;
+        }
+
+        .summary-table td:last-child {
+            text-align: right;
+            width: 100px;
+            font-weight: 400;
+            color: #333;
+        }
+
+        .summary-table .subtotal-row {
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-table .grand-total td {
+            padding-top: 15px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #222;
+        }
+
+        .summary-table .grand-total td:first-child {
+            color: #888;
+        }
+
+        /* Footer Section */
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .terms-title {
+            font-size: 10px;
+            font-weight: 400;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .terms-content {
+            font-size: 10px;
+            color: #999;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .thank-you {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            font-weight: 300;
+            color: #888;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                {{logo_url}}
+                <div class="shop-name">{{shop_name}}</div>
+                <div class="shop-details">
+                    {{shop_address}}<br>
+                    {{shop_phone}}<br>
+                    {{shop_gst}}
+                </div>
+            </div>
+            <div class="invoice-header">
+                <div class="invoice-title">Invoice</div>
+                <div class="invoice-number">{{invoice_number}}</div>
+                <div class="invoice-date">{{invoice_date}}</div>
+            </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div class="billing-section">
+            <div class="section-label">Billed To</div>
+            <div class="customer-name">{{customer_name}}</div>
+            <div class="customer-details">
+                {{customer_address}}<br>
+                {{customer_phone}}
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th class="text-center" style="width: 8%;">#</th>
+                    <th style="width: 42%;">Description</th>
+                    <th class="text-center" style="width: 15%;">Qty</th>
+                    <th class="text-right" style="width: 17%;">Rate</th>
+                    <th class="text-right" style="width: 18%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{items}}
+            </tbody>
+        </table>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <table class="summary-table">
+                <tr class="subtotal-row">
+                    <td>Subtotal</td>
+                    <td>{{subtotal}}</td>
+                </tr>
+                {{show_intrastate}}
+                <tr>
+                    <td>CGST ({{cgst_percent}}%)</td>
+                    <td>{{cgst_amount}}</td>
+                </tr>
+                <tr>
+                    <td>SGST ({{sgst_percent}}%)</td>
+                    <td>{{sgst_amount}}</td>
+                </tr>
+                {{/show_intrastate}}
+                {{show_interstate}}
+                <tr>
+                    <td>IGST ({{igst_percent}}%)</td>
+                    <td>{{igst_amount}}</td>
+                </tr>
+                {{/show_interstate}}
+                <tr class="grand-total">
+                    <td>Total</td>
+                    <td>{{total_amount}}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="terms-title">Terms</div>
+            <div class="terms-content">{{terms}}</div>
+        </div>
+
+        <div class="thank-you">Thank you</div>
+    </div>
+</body>
+</html>

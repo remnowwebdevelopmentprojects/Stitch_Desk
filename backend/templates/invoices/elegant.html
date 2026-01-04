@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - {{invoice_number}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Palatino', serif;
+            color: #2c2c2c;
+            font-size: 12px;
+            line-height: 1.6;
+            background: #fff;
+        }
+
+        .container {
+            padding: 40px 50px;
+        }
+
+        /* Decorative Border */
+        .border-frame {
+            border: 1px solid #8B7355;
+            padding: 35px;
+            position: relative;
+        }
+
+        .border-frame::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid #D4C4B0;
+            pointer-events: none;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #D4C4B0;
+        }
+
+        .logo-section img {
+            max-width: 130px;
+            max-height: 85px;
+            margin-bottom: 15px;
+        }
+
+        .shop-name {
+            font-size: 32px;
+            font-weight: normal;
+            color: #5D4E37;
+            margin-bottom: 8px;
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 11px;
+            color: #8B7355;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .shop-details {
+            font-size: 10px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Invoice Title */
+        .invoice-title-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .invoice-title {
+            font-size: 14px;
+            font-weight: normal;
+            color: #8B7355;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            margin-bottom: 5px;
+        }
+
+        .decorative-line {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #8B7355, transparent);
+            margin: 10px auto;
+        }
+
+        /* Invoice Meta */
+        .invoice-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            font-size: 11px;
+        }
+
+        .invoice-meta-item {
+            text-align: center;
+        }
+
+        .invoice-meta-label {
+            color: #8B7355;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 9px;
+            margin-bottom: 3px;
+        }
+
+        .invoice-meta-value {
+            color: #333;
+            font-weight: normal;
+        }
+
+        /* Customer Section */
+        .billing-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 35px;
+            padding: 20px;
+            background: #FDFCFA;
+            border: 1px solid #E8E0D5;
+        }
+
+        .bill-to {
+            flex: 1;
+        }
+
+        .section-label {
+            font-size: 9px;
+            color: #8B7355;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .customer-name {
+            font-size: 16px;
+            font-weight: normal;
+            color: #333;
+            margin-bottom: 6px;
+            font-style: italic;
+        }
+
+        .customer-details {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* Items Table */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .items-table thead tr {
+            background: #5D4E37;
+            color: #F5F0EA;
+        }
+
+        .items-table th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        .items-table th.text-center {
+            text-align: center;
+        }
+
+        .items-table th.text-right {
+            text-align: right;
+        }
+
+        .items-table td {
+            padding: 14px 12px;
+            font-size: 11px;
+            vertical-align: top;
+            border-bottom: 1px solid #E8E0D5;
+        }
+
+        .items-table tbody tr:nth-child(even) {
+            background: #FDFCFA;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 35px;
+        }
+
+        .summary-table {
+            width: 300px;
+            border: 1px solid #E8E0D5;
+        }
+
+        .summary-table td {
+            padding: 12px 15px;
+            font-size: 11px;
+            border-bottom: 1px solid #E8E0D5;
+        }
+
+        .summary-table td:first-child {
+            text-align: right;
+            background: #FDFCFA;
+            color: #666;
+            font-style: italic;
+        }
+
+        .summary-table td:last-child {
+            text-align: right;
+            width: 110px;
+            color: #333;
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .summary-table .grand-total td {
+            background: #5D4E37;
+            color: #F5F0EA;
+            font-size: 13px;
+        }
+
+        .summary-table .grand-total td:first-child {
+            background: #5D4E37;
+            color: #D4C4B0;
+        }
+
+        /* Footer Section */
+        .footer {
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid #D4C4B0;
+        }
+
+        .terms-title {
+            font-size: 10px;
+            color: #8B7355;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+
+        .terms-content {
+            font-size: 10px;
+            color: #888;
+            line-height: 1.8;
+        }
+
+        .thank-you {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 14px;
+            font-style: italic;
+            color: #8B7355;
+        }
+
+        .signature-section {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 180px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #8B7355;
+            padding-top: 8px;
+            font-size: 10px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Boutique Flourish */
+        .flourish {
+            text-align: center;
+            margin: 25px 0;
+            color: #D4C4B0;
+            font-size: 18px;
+            letter-spacing: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="border-frame">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-section">
+                    {{logo_url}}
+                </div>
+                <div class="shop-name">{{shop_name}}</div>
+                <div class="tagline">Boutique & Tailoring</div>
+                <div class="shop-details">
+                    {{shop_address}} | {{shop_phone}}<br>
+                    {{shop_gst}}
+                </div>
+            </div>
+
+            <!-- Invoice Title -->
+            <div class="invoice-title-section">
+                <div class="invoice-title">Invoice</div>
+                <div class="decorative-line"></div>
+            </div>
+
+            <!-- Invoice Meta -->
+            <div class="invoice-meta">
+                <div class="invoice-meta-item">
+                    <div class="invoice-meta-label">Invoice No</div>
+                    <div class="invoice-meta-value">{{invoice_number}}</div>
+                </div>
+                <div class="invoice-meta-item">
+                    <div class="invoice-meta-label">Date</div>
+                    <div class="invoice-meta-value">{{invoice_date}}</div>
+                </div>
+            </div>
+
+            <!-- Billing Section -->
+            <div class="billing-section">
+                <div class="bill-to">
+                    <div class="section-label">Billed To</div>
+                    <div class="customer-name">{{customer_name}}</div>
+                    <div class="customer-details">
+                        {{customer_address}}<br>
+                        Phone: {{customer_phone}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="width: 8%;">S.No</th>
+                        <th style="width: 42%;">Description</th>
+                        <th class="text-center" style="width: 15%;">Qty / Unit</th>
+                        <th class="text-right" style="width: 17%;">Rate</th>
+                        <th class="text-right" style="width: 18%;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{items}}
+                </tbody>
+            </table>
+
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <table class="summary-table">
+                    <tr>
+                        <td>Subtotal</td>
+                        <td>{{subtotal}}</td>
+                    </tr>
+                    {{show_intrastate}}
+                    <tr>
+                        <td>CGST ({{cgst_percent}}%)</td>
+                        <td>{{cgst_amount}}</td>
+                    </tr>
+                    <tr>
+                        <td>SGST ({{sgst_percent}}%)</td>
+                        <td>{{sgst_amount}}</td>
+                    </tr>
+                    {{/show_intrastate}}
+                    {{show_interstate}}
+                    <tr>
+                        <td>IGST ({{igst_percent}}%)</td>
+                        <td>{{igst_amount}}</td>
+                    </tr>
+                    {{/show_interstate}}
+                    <tr class="grand-total">
+                        <td>Total</td>
+                        <td>{{total_amount}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="flourish">❧ ❧ ❧</div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div class="terms-title">Terms & Conditions</div>
+                <div class="terms-content">{{terms}}</div>
+            </div>
+
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-line">Authorized Signature</div>
+                </div>
+            </div>
+
+            <div class="thank-you">Thank you for your patronage</div>
+        </div>
+    </div>
+</body>
+</html>
