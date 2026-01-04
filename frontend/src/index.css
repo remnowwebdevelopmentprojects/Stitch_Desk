@@ -1,0 +1,401 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Override react-day-picker default colors globally */
+:root {
+  --rdp-accent-color: #1f2937 !important;
+  --rdp-accent-background-color: #f3f4f6 !important;
+  --rdp-selected-border: transparent !important;
+  --rdp-outline: transparent !important;
+  --rdp-outline-selected: transparent !important;
+  --rdp-selected-font: inherit !important;
+  --rdp-focus-outline: 0 !important;
+}
+
+/* Force remove blue outline from react-day-picker globally */
+.rdp-day_button:focus-visible,
+.rdp-day_button:focus,
+.rdp-focused .rdp-day_button,
+.rdp-selected .rdp-day_button,
+.rdp-day_button[aria-selected="true"] {
+  outline: none !important;
+  outline-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Target the specific RDP focus class */
+.rdp-focusable:focus-visible,
+.rdp-focusable:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+@layer base {
+  :root {
+    /* Sandstone (#D5C2A1) - warm, natural, earthy */
+    --primary: 35 35% 73%;
+    --primary-foreground: 0 0% 7%;
+    
+    /* Off-White (#F8F8F6) - clean, soft, minimal */
+    --background: 60 20% 97%;
+    --card: 60 20% 97%;
+    --popover: 60 20% 97%;
+    
+    /* Soft Black (#121212) - grounding, elegant, readable */
+    --foreground: 0 0% 7%;
+    --card-foreground: 0 0% 7%;
+    --popover-foreground: 0 0% 7%;
+    
+    /* Sandstone variations for secondary and accent */
+    --secondary: 35 25% 80%;
+    --secondary-foreground: 0 0% 7%;
+    --accent: 35 35% 73%;
+    --accent-foreground: 0 0% 7%;
+    
+    /* Muted tones - lighter sandstone */
+    --muted: 35 15% 92%;
+    --muted-foreground: 0 0% 40%;
+    
+    /* Borders and inputs - subtle sandstone tint */
+    --border: 35 20% 85%;
+    --input: 35 20% 85%;
+    --ring: 35 35% 73%;
+    
+    /* Destructive - warm red that complements the palette */
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 60 20% 97%;
+    
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode - soft black base with sandstone accents */
+    --background: 0 0% 7%;
+    --foreground: 60 20% 97%;
+    --card: 0 0% 10%;
+    --card-foreground: 60 20% 97%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 60 20% 97%;
+    --primary: 35 35% 73%;
+    --primary-foreground: 0 0% 7%;
+    --secondary: 35 25% 65%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 35 15% 70%;
+    --accent: 35 35% 73%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 60 20% 97%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 35 35% 73%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Override all react-day-picker default colors */
+  .rdp {
+    --rdp-accent-color: #1f2937 !important;
+    --rdp-accent-background-color: #f3f4f6 !important;
+    --rdp-selected-border: transparent !important;
+    --rdp-day-height: 2.25rem;
+    --rdp-day-width: 2.25rem;
+    --rdp-outside-opacity: 0.5;
+    --rdp-outline: 2px solid #1f2937 !important;
+    --rdp-outline-selected: 2px solid #1f2937 !important;
+    --rdp-selected-font: inherit;
+    --rdp-today-color: #1f2937;
+  }
+
+  /* Force black color on all SVG icons in calendar */
+  .rdp svg,
+  .rdp button svg,
+  .rdp-button_previous svg,
+  .rdp-button_next svg,
+  .rdp-chevron svg,
+  .rdp [class*="chevron"] svg,
+  .rdp-chevron {
+    color: #000000 !important;
+    stroke: #000000 !important;
+    fill: none !important;
+  }
+
+  /* Override today styling */
+  .rdp-today:not(.rdp-selected) .rdp-day_button {
+    color: #1f2937 !important;
+  }
+
+  /* Override selected day with focus */
+  .rdp-selected .rdp-day_button,
+  .rdp-day_button[aria-selected="true"] {
+    background-color: #1f2937 !important;
+    color: white !important;
+    border: none !important;
+    outline: none !important;
+  }
+
+  /* Ensure DayPicker buttons render as actual buttons */
+  .rdp-button_reset {
+    all: unset;
+    box-sizing: border-box;
+  }
+  
+  .rdp-button {
+    cursor: pointer;
+  }
+  
+  .rdp-day_button {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50;
+    @apply hover:bg-gray-100 hover:text-gray-900;
+    @apply h-9 w-9 p-0 font-normal;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  
+  .rdp-day_button[aria-selected="true"] {
+    @apply bg-gray-900 text-white hover:bg-gray-800 hover:text-white focus:bg-gray-900 focus:text-white;
+    border: none !important;
+  }
+  
+  .rdp-day_button[aria-selected="true"]:hover {
+    @apply bg-gray-800;
+    border: none !important;
+  }
+  
+  .rdp-day_button[aria-selected="true"]:focus {
+    @apply bg-gray-900;
+    border: none !important;
+  }
+  
+  .rdp-day_button[data-today="true"]:not([aria-selected="true"]) {
+    @apply bg-gray-100 text-gray-900;
+  }
+  
+  .rdp-nav_button {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:pointer-events-none disabled:opacity-50;
+    @apply border border-input bg-background hover:bg-gray-100 hover:text-gray-900;
+    @apply h-7 w-7 bg-transparent p-0 text-black opacity-100;
+  }
+  
+  .rdp-nav_button svg {
+    @apply text-black;
+    filter: none !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .rdp-button_previous,
+  .rdp-button_next {
+    @apply text-black opacity-100;
+    color: black !important;
+  }
+  
+  .rdp-button_previous svg,
+  .rdp-button_next svg {
+    @apply text-black;
+    color: black !important;
+    stroke: black !important;
+    fill: none !important;
+    filter: none !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .rdp-button_previous:hover svg,
+  .rdp-button_next:hover svg {
+    color: black !important;
+    stroke: black !important;
+  }
+  
+  .rdp-button_previous:focus svg,
+  .rdp-button_next:focus svg {
+    color: black !important;
+    stroke: black !important;
+  }
+  
+  .rdp-caption_label {
+    @apply text-black;
+  }
+  
+  .rdp-dropdowns {
+    @apply text-black;
+  }
+  
+  .rdp-dropdowns select {
+    @apply text-black;
+  }
+  
+  /* Remove focus rings from calendar dropdowns */
+  .rdp-dropdown_root select,
+  .rdp-dropdown_root select:focus,
+  .rdp-dropdown_root select:focus-visible {
+    outline: none !important;
+    ring: 0 !important;
+    border-color: hsl(var(--input)) !important;
+    box-shadow: none !important;
+  }
+  
+  /* Remove focus rings from all calendar buttons */
+  .rdp-button:focus,
+  .rdp-button:focus-visible,
+  .rdp-button:active {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+  }
+  
+  /* Remove all blue colors and focus rings from calendar day buttons */
+  .rdp-day_button:focus,
+  .rdp-day_button:focus-visible,
+  .rdp-day_button:active,
+  .rdp-day_button:focus-within {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+    border-color: black !important;
+  }
+  
+  /* Remove blue from any button inside calendar */
+  .rdp button:focus,
+  .rdp button:focus-visible,
+  .rdp button:active {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Remove focus ring color specifically */
+  .rdp button:focus-visible {
+    --tw-ring-color: transparent !important;
+    --tw-ring-offset-color: transparent !important;
+  }
+  
+  /* Remove focus from Button component when used in calendar */
+  .rdp-day_button button:focus,
+  .rdp-day_button button:focus-visible,
+  .rdp-day_button button:active {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Selected day styles */
+  .rdp-day_button[aria-selected="true"]:focus,
+  .rdp-day_button[aria-selected="true"]:focus-visible,
+  .rdp-day_button[aria-selected="true"]:active {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+    background-color: rgb(17 24 39) !important;
+    border: none !important;
+  }
+  
+  /* Remove focus from all calendar elements */
+  .rdp *:focus,
+  .rdp *:focus-visible,
+  .rdp *:active {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+  }
+  
+  /* Selected single day styling */
+  .rdp button[data-selected-single="true"]:focus,
+  .rdp button[data-selected-single="true"]:focus-visible {
+    outline: none !important;
+    ring: 0 !important;
+    box-shadow: none !important;
+    background-color: rgb(17 24 39) !important;
+    border: none !important;
+  }
+
+  /* Force remove all blue colors and borders from calendar */
+  .rdp-day,
+  .rdp-day button,
+  .rdp-day_button,
+  .rdp-selected,
+  .rdp-day[aria-selected="true"],
+  .rdp button[aria-selected="true"] {
+    border-color: transparent !important;
+    outline-color: transparent !important;
+    --tw-ring-color: transparent !important;
+  }
+
+  /* Override react-day-picker focused state */
+  .rdp-focused .rdp-day_button,
+  .rdp-day_button.rdp-focused,
+  .rdp-day_button:focus,
+  .rdp-day_button:focus-visible,
+  .rdp-day_button:focus-within {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: none !important;
+    --tw-ring-color: transparent !important;
+  }
+
+  /* Override the selected day visual state completely */
+  .rdp-day_button[aria-selected="true"],
+  .rdp-day_button[data-selected="true"],
+  .rdp [data-selected="true"] button {
+    background-color: rgb(17 24 39) !important;
+    color: white !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Force chevron icons to be black */
+  .rdp-chevron,
+  .rdp-button_previous .lucide,
+  .rdp-button_next .lucide,
+  .rdp-button_previous svg,
+  .rdp-button_next svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+  }
+
+  /* AGGRESSIVE: Remove ALL outlines from any element inside calendar */
+  .rdp *:focus,
+  .rdp *:focus-visible,
+  .rdp *:focus-within,
+  .rdp button:focus,
+  .rdp button:focus-visible {
+    outline: 0 !important;
+    outline-width: 0 !important;
+    outline-style: none !important;
+    outline-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Target the parent day cell for selected state */
+  .rdp-selected,
+  .rdp-day.rdp-selected,
+  td.rdp-selected {
+    outline: none !important;
+    border: none !important;
+  }
+
+  /* Specifically target aria-selected buttons */
+  button[aria-selected="true"]:focus,
+  button[aria-selected="true"]:focus-visible,
+  .rdp button[aria-selected="true"] {
+    outline: 0 !important;
+    outline-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
