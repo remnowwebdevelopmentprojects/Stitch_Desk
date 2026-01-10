@@ -428,7 +428,6 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
                         <SelectItem value="IN_STITCHING">In Stitching</SelectItem>
                         <SelectItem value="READY">Ready</SelectItem>
                         <SelectItem value="DELIVERED">Delivered</SelectItem>
-                        <SelectItem value="CANCELLED">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

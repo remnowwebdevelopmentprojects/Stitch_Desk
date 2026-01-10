@@ -19,7 +19,6 @@ export const BusinessSettingsTab = () => {
     full_address: '',
     gst_number: '',
     invoice_prefix: '',
-    quotation_prefix: '',
     default_currency: 'INR',
   })
   const [logoFile, setLogoFile] = useState<File | null>(null)
@@ -39,7 +38,6 @@ export const BusinessSettingsTab = () => {
         full_address: settings.full_address || '',
         gst_number: settings.gst_number || '',
         invoice_prefix: settings.invoice_prefix || '',
-        quotation_prefix: settings.quotation_prefix || '',
         default_currency: settings.default_currency || 'INR',
       })
       if (settings.logo_url) {
@@ -192,17 +190,6 @@ export const BusinessSettingsTab = () => {
                 value={formData.invoice_prefix}
                 onChange={(e) => setFormData({ ...formData, invoice_prefix: e.target.value })}
                 placeholder="e.g., INV/25-26/"
-              />
-            </div>
-
-            {/* Quotation Prefix */}
-            <div className="space-y-2">
-              <Label htmlFor="quotation_prefix">Quotation Prefix</Label>
-              <Input
-                id="quotation_prefix"
-                value={formData.quotation_prefix}
-                onChange={(e) => setFormData({ ...formData, quotation_prefix: e.target.value })}
-                placeholder="e.g., QUO/25-26/"
               />
             </div>
 

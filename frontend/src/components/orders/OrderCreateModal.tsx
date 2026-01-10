@@ -4,6 +4,7 @@ import { orderService } from '@/services/orders'
 import { customerService } from '@/services/customers'
 import { measurementTemplateService } from '@/services/measurementTemplates'
 import { measurementService } from '@/services/measurements'
+import { settingsService } from '@/services/settings'
 import type { CreateOrderRequest, CreateOrderItem, ItemType, MeasurementTemplate, Measurement, Customer } from '@/types'
 import { Button } from '@/components/common/Button'
 import { CustomerForm } from '@/components/common/CustomerForm'
@@ -26,7 +27,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Plus, X, ChevronRight, ChevronLeft, Download, CalendarIcon, Pencil, UserPlus } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, addDays } from 'date-fns'
 import { cn } from '@/utils/cn'
 
 interface OrderCreateModalProps {
@@ -67,6 +68,12 @@ export const OrderCreateModal = ({ isOpen, onClose, onSuccess }: OrderCreateModa
     queryFn: () => customerService.getAll(),
   })
 
+  // Fetch settings to get delivery duration
+  const { data: settings } = useQuery({
+    queryKey: ['allSettings'],
+    queryFn: () => settingsService.getAllSettings(),
+  })
+
   // Fetch saved measurements for selected customer
   const { data: savedMeasurements = [] } = useQuery<Measurement[]>({
     queryKey: ['customer-measurements', formData.customer],
@@ -96,6 +103,14 @@ export const OrderCreateModal = ({ isOpen, onClose, onSuccess }: OrderCreateModa
       }
     }
   }, [templates, pendingTemplateId, pendingMeasurements])
+
+  // Auto-calculate delivery date based on order date and settings
+  useEffect(() => {
+    if (orderDate && settings?.delivery_duration_days) {
+      const calculatedDeliveryDate = addDays(orderDate, settings.delivery_duration_days)
+      setDeliveryDate(calculatedDeliveryDate)
+    }
+  }, [orderDate, settings?.delivery_duration_days])
 
   // Create order mutation
   const createOrder = useMutation({

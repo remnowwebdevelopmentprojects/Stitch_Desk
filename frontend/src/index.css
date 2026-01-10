@@ -34,63 +34,63 @@
 
 @layer base {
   :root {
-    /* Sandstone (#D5C2A1) - warm, natural, earthy */
-    --primary: 35 35% 73%;
-    --primary-foreground: 0 0% 7%;
+    /* Richer Lilac (#A77BB5) - deeper, more vibrant purple */
+    --primary: 282 42% 60%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Off-White (#F8F8F6) - clean, soft, minimal */
-    --background: 60 20% 97%;
-    --card: 60 20% 97%;
-    --popover: 60 20% 97%;
+    /* Pure White Background */
+    --background: 0 0% 100%;
+    --card: 0 0% 100%;
+    --popover: 0 0% 100%;
     
-    /* Soft Black (#121212) - grounding, elegant, readable */
-    --foreground: 0 0% 7%;
-    --card-foreground: 0 0% 7%;
-    --popover-foreground: 0 0% 7%;
+    /* Dark Purple (#2D2142) - elegant, readable */
+    --foreground: 270 33% 19%;
+    --card-foreground: 270 33% 19%;
+    --popover-foreground: 270 33% 19%;
     
-    /* Sandstone variations for secondary and accent */
-    --secondary: 35 25% 80%;
-    --secondary-foreground: 0 0% 7%;
-    --accent: 35 35% 73%;
-    --accent-foreground: 0 0% 7%;
+    /* Lilac variations for secondary and accent */
+    --secondary: 282 30% 75%;
+    --secondary-foreground: 270 33% 19%;
+    --accent: 282 42% 60%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Muted tones - lighter sandstone */
-    --muted: 35 15% 92%;
-    --muted-foreground: 0 0% 40%;
+    /* Muted tones - medium lilac */
+    --muted: 280 25% 87%;
+    --muted-foreground: 270 15% 35%;
     
-    /* Borders and inputs - subtle sandstone tint */
-    --border: 35 20% 85%;
-    --input: 35 20% 85%;
-    --ring: 35 35% 73%;
+    /* Borders and inputs - noticeable lilac tint */
+    --border: 280 25% 80%;
+    --input: 280 25% 80%;
+    --ring: 282 42% 60%;
     
     /* Destructive - warm red that complements the palette */
     --destructive: 0 70% 55%;
-    --destructive-foreground: 60 20% 97%;
+    --destructive-foreground: 0 0% 100%;
     
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark mode - soft black base with sandstone accents */
-    --background: 0 0% 7%;
-    --foreground: 60 20% 97%;
-    --card: 0 0% 10%;
-    --card-foreground: 60 20% 97%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 60 20% 97%;
-    --primary: 35 35% 73%;
-    --primary-foreground: 0 0% 7%;
-    --secondary: 35 25% 65%;
-    --secondary-foreground: 0 0% 7%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 35 15% 70%;
-    --accent: 35 35% 73%;
-    --accent-foreground: 0 0% 7%;
+    /* Dark mode - deep purple base with lilac accents */
+    --background: 270 33% 12%;
+    --foreground: 280 30% 98%;
+    --card: 270 30% 15%;
+    --card-foreground: 280 30% 98%;
+    --popover: 270 30% 15%;
+    --popover-foreground: 280 30% 98%;
+    --primary: 282 35% 73%;
+    --primary-foreground: 270 33% 19%;
+    --secondary: 282 25% 65%;
+    --secondary-foreground: 280 30% 98%;
+    --muted: 270 25% 20%;
+    --muted-foreground: 282 20% 70%;
+    --accent: 282 35% 73%;
+    --accent-foreground: 270 33% 19%;
     --destructive: 0 70% 55%;
-    --destructive-foreground: 60 20% 97%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 35 35% 73%;
+    --destructive-foreground: 280 30% 98%;
+    --border: 270 25% 25%;
+    --input: 270 25% 25%;
+    --ring: 282 35% 73%;
   }
 }
 

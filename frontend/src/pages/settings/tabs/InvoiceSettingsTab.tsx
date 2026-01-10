@@ -96,12 +96,13 @@ export const InvoiceSettingsTab = () => {
             <div className="space-y-2">
               <Label htmlFor="default_tax_type">Default Tax Type</Label>
               <Select
+                key={`tax-type-${formData.default_tax_type}`}
                 value={formData.default_tax_type}
                 onValueChange={(value: 'GST' | 'NON_GST') => 
                   setFormData({ ...formData, default_tax_type: value })
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger id="default_tax_type">
                   <SelectValue placeholder="Select tax type" />
                 </SelectTrigger>
                 <SelectContent>

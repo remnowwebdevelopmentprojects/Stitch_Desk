@@ -12,7 +12,6 @@ export interface BusinessSettings {
   full_address: string | null
   gst_number: string | null
   invoice_prefix: string
-  quotation_prefix: string
   default_currency: string
 }
 
@@ -46,7 +45,6 @@ export interface AllSettings {
   full_address: string | null
   gst_number: string | null
   invoice_prefix: string
-  quotation_prefix: string
   default_currency: string
   delivery_duration_days: number
   invoice_numbering_format: string
