@@ -7,6 +7,8 @@ import { Measurements } from './pages/measurements/Measurements'
 import { Orders } from './pages/orders/Orders'
 import { Invoices } from './pages/invoices/Invoices'
 import { Settings } from './pages/settings/Settings'
+import { Gallery } from './pages/gallery/Gallery'
+import { PublicGallery } from './pages/public/PublicGallery'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token')
@@ -67,6 +69,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/gallery"
+            element={
+              <ProtectedRoute>
+                <Gallery />
+              </ProtectedRoute>
+            }
+          />
+          {/* Public routes - no auth required */}
+          <Route path="/gallery/:shopId" element={<PublicGallery />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>

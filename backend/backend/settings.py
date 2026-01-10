@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'measurements',
     'orders',
     'invoices',
+    'gallery',
 ]
 
 MIDDLEWARE = [

@@ -1,12 +1,13 @@
 import { Layout } from '@/components/layout/Layout'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Building2, ShoppingCart, FileText, CreditCard, Shield, CreditCardIcon } from 'lucide-react'
+import { Building2, ShoppingCart, FileText, CreditCard, Shield, CreditCardIcon, Image } from 'lucide-react'
 import { BusinessSettingsTab } from './tabs/BusinessSettingsTab'
 import { OrderSettingsTab } from './tabs/OrderSettingsTab'
 import { InvoiceSettingsTab } from './tabs/InvoiceSettingsTab'
 import { PaymentSettingsTab } from './tabs/PaymentSettingsTab'
 import { SecuritySettingsTab } from './tabs/SecuritySettingsTab'
 import { SubscriptionSettingsTab } from './tabs/SubscriptionSettingsTab'
+import { GallerySettings } from '@/components/gallery/GallerySettings'
 
 export const Settings = () => {
   return (
@@ -20,7 +21,7 @@ export const Settings = () => {
         </div>
 
         <Tabs defaultValue="business" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="business" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Business</span>
@@ -36,6 +37,10 @@ export const Settings = () => {
             <TabsTrigger value="payment" className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               <span className="hidden sm:inline">Payment</span>
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex items-center gap-2">
+              <Image className="h-4 w-4" />
+              <span className="hidden sm:inline">Gallery</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -59,6 +64,9 @@ export const Settings = () => {
             </TabsContent>
             <TabsContent value="payment">
               <PaymentSettingsTab />
+            </TabsContent>
+            <TabsContent value="gallery">
+              <GallerySettings />
             </TabsContent>
             <TabsContent value="security">
               <SecuritySettingsTab />

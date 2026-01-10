@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2, Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Loader2, Plus, Trash2 } from 'lucide-react'
 
 export const PaymentSettingsTab = () => {
   const queryClient = useQueryClient()
@@ -117,19 +118,12 @@ export const PaymentSettingsTab = () => {
                   className="flex items-center justify-between p-3 hover:bg-muted/50"
                 >
                   <div className="flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleActive(method)}
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      title={method.is_active ? 'Click to disable' : 'Click to enable'}
-                    >
-                      {method.is_active ? (
-                        <ToggleRight className="h-6 w-6 text-green-500" />
-                      ) : (
-                        <ToggleLeft className="h-6 w-6" />
-                      )}
-                    </button>
-                    <span className={method.is_active ? '' : 'text-muted-foreground line-through'}>
+                    <Switch
+                      checked={method.is_active}
+                      onCheckedChange={() => handleToggleActive(method)}
+                      disabled={updateMutation.isPending}
+                    />
+                    <span className={method.is_active ? '' : 'text-muted-foreground'}>
                       {method.name}
                     </span>
                   </div>

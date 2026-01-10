@@ -7,8 +7,7 @@ import { OrderDetailModal } from '@/components/orders/OrderDetailModal'
 import { OrderEditModal } from '@/components/orders/OrderEditModal'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { orderService } from '@/services/orders'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Eye, Pencil, Search, Filter } from 'lucide-react'
+import { Plus, Eye, Pencil, Search, Filter, Loader2 } from 'lucide-react'
 import { formatCurrency } from '@/utils/currency'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -48,6 +47,42 @@ export const Orders = () => {
     
     return matchesSearch && matchesStatus
   })
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+  }
+
+  const getStatusColor = (status: OrderStatus) => {
+    switch (status) {
+      case 'DELIVERED':
+        return 'bg-green-100 text-green-800'
+      case 'READY':
+        return 'bg-blue-100 text-blue-800'
+      case 'IN_STITCHING':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'PENDING':
+        return 'bg-gray-100 text-gray-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'PAID':
+        return 'text-green-600'
+      case 'PARTIAL':
+        return 'text-yellow-600'
+      case 'UNPAID':
+        return 'text-red-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
 
   const handleOrderCreated = () => {
     queryClient.invalidateQueries({ queryKey: ['orders'] })
@@ -92,7 +127,6 @@ export const Orders = () => {
                 <SelectItem value="IN_STITCHING">In Stitching</SelectItem>
                 <SelectItem value="READY">Ready</SelectItem>
                 <SelectItem value="DELIVERED">Delivered</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -100,12 +134,14 @@ export const Orders = () => {
 
         
         {isLoading ? (
-          <div className="text-center py-12">Loading orders...</div>
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
         ) : error ? (
-          <div className="text-center py-12 text-destructive">
-            <p>Error loading orders. Please try again.</p>
+          <div className="text-center py-12 bg-white rounded-lg border shadow-sm">
+            <p className="text-destructive">Error loading orders. Please try again.</p>
             {error instanceof Error && (
-              <p className="text-xs mt-2">{error.message}</p>
+              <p className="text-xs mt-2 text-gray-500">{error.message}</p>
             )}
           </div>
         ) : ordersList.length === 0 ? (
@@ -120,79 +156,95 @@ export const Orders = () => {
             }
           />
         ) : filteredOrders.length === 0 ? (
-          <EmptyState
-            title="No orders found"
-            description="Try adjusting your search or filter criteria."
-          />
+          <div className="text-center py-12 bg-white rounded-lg border shadow-sm">
+            <p className="text-muted-foreground">No orders found matching your criteria.</p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredOrders.map((order) => (
-              <Card 
-                key={order.id} 
-                className="hover:shadow-md transition-shadow"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{order.order_number}</CardTitle>
-                    <span
-                      className={`px-2 py-1 text-xs rounded ${
-                        order.status === 'DELIVERED'
-                          ? 'bg-green-100 text-green-800'
-                          : order.status === 'READY'
-                          ? 'bg-blue-100 text-blue-800'
-                          : order.status === 'IN_STITCHING'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : order.status === 'CANCELLED'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {order.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Customer</span>
-                      <span className="font-medium truncate ml-2">{order.customer_name}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Delivery</span>
-                      <span>{new Date(order.delivery_date).toLocaleDateString()}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Total</span>
-                      <span className="font-semibold">{formatCurrency(order.total_amount)}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Payment</span>
-                      <span className="capitalize">{order.payment_status.toLowerCase()}</span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setSelectedOrderId(order.id)}
-                    >
-                      <Eye className="w-4 h-4 mr-1" />
-                      View
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setEditingOrderId(order.id)}
-                    >
-                      <Pencil className="w-4 h-4 mr-1" />
-                      Edit
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order #
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Delivery Date
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total Amount
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Payment
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="font-medium text-gray-900">{order.order_number}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{order.customer_name}</div>
+                        <div className="text-sm text-gray-500">{order.customer_phone}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(order.order_date)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(order.delivery_date)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${getStatusColor(order.status)}`}>
+                        {order.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <span className="font-semibold text-gray-900">{formatCurrency(order.total_amount)}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className={`text-sm font-medium capitalize ${getPaymentStatusColor(order.payment_status)}`}>
+                        {order.payment_status.toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedOrderId(order.id)}
+                          title="View Details"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setEditingOrderId(order.id)}
+                          title="Edit Order"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 

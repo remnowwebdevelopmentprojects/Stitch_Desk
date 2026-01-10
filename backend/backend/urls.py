@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from gallery.views import PublicGalleryView, PublicGalleryItemView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -47,12 +48,16 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Public gallery (no /api/ prefix)
+    path('gallery/<uuid:shop_id>/', PublicGalleryView.as_view(), name='public-gallery'),
+    path('gallery/<uuid:shop_id>/items/<uuid:item_id>/', PublicGalleryItemView.as_view(), name='public-gallery-item'),
     # API URLs
     path('api/', include('accounts.urls')),
     path('api/', include('customers.urls')),
     path('api/', include('measurements.urls')),
     path('api/', include('orders.urls')),
     path('api/', include('invoices.urls')),
+    path('api/', include('gallery.urls')),
     # Swagger/OpenAPI URLs
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),

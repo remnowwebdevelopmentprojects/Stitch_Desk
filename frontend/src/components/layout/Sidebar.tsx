@@ -7,7 +7,8 @@ import {
   FileText,
   Ruler,
   LogOut,
-  Settings 
+  Settings,
+  Image
 } from 'lucide-react'
 import { useLogout } from '@/hooks/useAuth'
 
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Measurements', href: '/measurements', icon: Ruler },
   { name: 'Orders', href: '/orders', icon: ShoppingBag },
   { name: 'Invoices', href: '/invoices', icon: FileText },
+  { name: 'Gallery', href: '/gallery', icon: Image },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

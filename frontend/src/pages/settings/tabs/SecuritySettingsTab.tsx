@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Loader2, Shield, Key, Mail } from 'lucide-react'
 
@@ -228,33 +229,20 @@ export const SecuritySettingsTab = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {is2FAEnabled ? (
-                <>
-                  <span className="text-sm text-green-600 font-medium">Enabled</span>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={handleDisable2FA}
-                    disabled={toggle2FAMutation.isPending}
-                  >
-                    Disable
-                  </Button>
-                </>
-              ) : (
-                <Button 
-                  onClick={handleEnable2FA}
-                  disabled={toggle2FAMutation.isPending}
-                >
-                  {toggle2FAMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending OTP...
-                    </>
-                  ) : (
-                    'Enable 2FA'
-                  )}
-                </Button>
-              )}
+              <Switch
+                checked={is2FAEnabled}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    handleEnable2FA()
+                  } else {
+                    handleDisable2FA()
+                  }
+                }}
+                disabled={toggle2FAMutation.isPending}
+              />
+              <span className="text-sm font-medium">
+                {is2FAEnabled ? 'Enabled' : 'Disabled'}
+              </span>
             </div>
           </div>
         </CardContent>
