@@ -6,7 +6,8 @@ from .views import (
     payment_methods_view, payment_method_detail_view,
     change_password_view, toggle_2fa_view, verify_2fa_otp_view,
     send_login_otp_view, verify_login_otp_view, all_settings_view,
-    forgot_password_view, reset_password_view
+    forgot_password_view, reset_password_view,
+    google_login_view, google_callback_view, current_user_view
 )
 
 urlpatterns = [
@@ -14,7 +15,12 @@ urlpatterns = [
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', login_view, name='login'),
     path('auth/logout/', logout_view, name='logout'),
-    
+    path('auth/me/', current_user_view, name='current-user'),
+
+    # Google OAuth
+    path('auth/google/login/', google_login_view, name='google-login'),
+    path('auth/google/callback/', google_callback_view, name='google-callback'),
+
     # 2FA Login
     path('auth/2fa/send-otp/', send_login_otp_view, name='send-login-otp'),
     path('auth/2fa/verify-otp/', verify_login_otp_view, name='verify-login-otp'),

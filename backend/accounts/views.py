@@ -9,8 +9,12 @@ from drf_yasg import openapi
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.conf import settings
+from django.shortcuts import redirect
+from urllib.parse import urlencode
 import random
 import string
+import os
+import requests as http_requests
 from datetime import timedelta
 
 from .models import User, Shop, PaymentMethod
@@ -663,3 +667,127 @@ def reset_password_view(request):
     user.save()
     
     return Response({'message': 'Password has been reset successfully.'})
+
+
+# ============== Google OAuth ==============
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def google_login_view(request):
+    """Redirect to Google OAuth consent screen"""
+    google_client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    redirect_uri = os.environ.get('GOOGLE_REDIRECT_URI')
+
+    if not google_client_id or not redirect_uri:
+        return Response({'error': 'Google OAuth not configured'},
+                       status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Get action (login or signup) from query params
+    action = request.GET.get('action', 'login')
+
+    params = {
+        'client_id': google_client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': 'openid email profile',
+        'access_type': 'offline',
+        'prompt': 'consent',
+        'state': action  # Pass action as state parameter
+    }
+
+    google_auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
+    return redirect(google_auth_url)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def google_callback_view(request):
+    """
+    Handle Google OAuth callback.
+    Exchange code for token, verify, create/login user.
+    """
+    code = request.GET.get('code')
+    error = request.GET.get('error')
+    action = request.GET.get('state', 'login')  # Get action from state parameter
+
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+
+    if error:
+        return redirect(f"{frontend_url}/auth/google/callback?error={error}")
+
+    if not code:
+        return redirect(f"{frontend_url}/auth/google/callback?error=missing_code")
+
+    try:
+        # Exchange code for tokens
+        token_url = 'https://oauth2.googleapis.com/token'
+        token_data = {
+            'code': code,
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'client_secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
+            'redirect_uri': os.environ.get('GOOGLE_REDIRECT_URI'),
+            'grant_type': 'authorization_code'
+        }
+
+        token_response = http_requests.post(token_url, data=token_data)
+        token_response.raise_for_status()
+        tokens = token_response.json()
+
+        # Verify ID token using Google's tokeninfo endpoint
+        id_token = tokens.get('id_token')
+        if not id_token:
+            return redirect(f"{frontend_url}/auth/google/callback?error=no_id_token")
+
+        # Verify the ID token
+        verify_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={id_token}"
+        verify_response = http_requests.get(verify_url)
+        verify_response.raise_for_status()
+        id_info = verify_response.json()
+
+        # Extract user info
+        email = id_info.get('email')
+        name = id_info.get('name', '')
+
+        if not email:
+            return redirect(f"{frontend_url}/auth/google/callback?error=email_not_provided")
+
+        # Check if user exists
+        user_exists = User.objects.filter(email=email).exists()
+
+        if action == 'login' and not user_exists:
+            # User trying to login but doesn't have an account - redirect to signup
+            return redirect(f"{frontend_url}/signup?error=no_account&email={email}")
+
+        if user_exists:
+            user = User.objects.get(email=email)
+        else:
+            # Create new user (only for signup action)
+            user = User.objects.create_user(
+                email=email,
+                name=name or email.split('@')[0],
+                password=None  # No password for OAuth users
+            )
+
+        # Generate or get token
+        token, created = Token.objects.get_or_create(user=user)
+
+        # Redirect to frontend with token
+        return redirect(f"{frontend_url}/auth/google/callback?token={token.key}")
+
+    except Exception as e:
+        print(f"Google OAuth error: {e}")
+        return redirect(f"{frontend_url}/auth/google/callback?error=authentication_failed")
+
+
+@swagger_auto_schema(
+    method='get',
+    operation_description="Get current authenticated user information",
+    responses={200: UserSerializer},
+    tags=['Authentication']
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user_view(request):
+    """Get current authenticated user"""
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
