@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
+from subscriptions.permissions import ReadOnlyIfExpired
 
 from .models import Customer
 from .serializers import CustomerSerializer
@@ -9,7 +10,7 @@ from .serializers import CustomerSerializer
 class CustomerViewSet(viewsets.ModelViewSet):
     """Customer viewset"""
     serializer_class = CustomerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
     
     def get_queryset(self):
         return Customer.objects.filter(user=self.request.user).order_by('-created_at')

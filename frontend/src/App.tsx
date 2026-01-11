@@ -18,6 +18,10 @@ import { PrivacyPolicy } from './pages/static/PrivacyPolicy'
 import { About } from './pages/static/About'
 import { HelpCenter } from './pages/static/HelpCenter'
 import { Documentation } from './pages/static/Documentation'
+import { SuperAdminLayout } from './pages/admin/SuperAdminLayout'
+import { SuperAdminDashboard } from './pages/admin/SuperAdminDashboard'
+import { PlansManagement } from './pages/admin/PlansManagement'
+import { UsersManagement } from './pages/admin/UsersManagement'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem('token')
@@ -108,6 +112,20 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Super Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <SuperAdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<SuperAdminDashboard />} />
+            <Route path="plans" element={<PlansManagement />} />
+            <Route path="users" element={<UsersManagement />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </QueryProvider>

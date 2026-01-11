@@ -84,13 +84,13 @@ class UserSerializer(serializers.ModelSerializer):
     """User serializer"""
     shop_id = serializers.UUIDField(source='shop.id', read_only=True, allow_null=True)
     is_2fa_enabled = serializers.BooleanField(read_only=True)
-    
+
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'quotation_prefix', 'invoice_prefix', 
-                  'bank_name', 'branch_name', 'account_name', 'account_number', 
-                  'ifsc_code', 'gpay_phonepe', 'created_at', 'shop_id', 'role', 'is_2fa_enabled']
-        read_only_fields = ['id', 'created_at', 'shop_id']
+        fields = ['id', 'email', 'name', 'quotation_prefix', 'invoice_prefix',
+                  'bank_name', 'branch_name', 'account_name', 'account_number',
+                  'ifsc_code', 'gpay_phonepe', 'created_at', 'shop_id', 'role', 'is_2fa_enabled', 'is_superuser']
+        read_only_fields = ['id', 'created_at', 'shop_id', 'is_superuser']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

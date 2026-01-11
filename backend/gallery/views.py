@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Max
 from django.db import models
+from subscriptions.permissions import ReadOnlyIfExpired
 
 from .models import GalleryCategory, GalleryItem, GalleryImage, GallerySettings, GalleryAnalytics
 from .serializers import (
@@ -29,7 +30,7 @@ from accounts.models import Shop
 class GalleryCategoryViewSet(viewsets.ModelViewSet):
     """ViewSet for managing gallery categories"""
     serializer_class = GalleryCategorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
@@ -49,7 +50,7 @@ class GalleryCategoryViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             is_deleted=False
         ).aggregate(max_order=Max('display_order'))['max_order'] or 0
-        
+
         serializer.save(
             user=self.request.user,
             shop=self.request.user.shop,
@@ -64,17 +65,17 @@ class GalleryCategoryViewSet(viewsets.ModelViewSet):
     def reorder(self, request):
         """Reorder categories - expects list of {id, display_order}"""
         orders = request.data.get('orders', [])
-        
+
         for item in orders:
             category_id = item.get('id')
             display_order = item.get('display_order')
-            
+
             if category_id and display_order is not None:
                 GalleryCategory.objects.filter(
                     id=category_id,
                     user=request.user
                 ).update(display_order=display_order)
-        
+
         return Response({'status': 'reordered'})
 
     @action(detail=True, methods=['post'])
@@ -88,7 +89,7 @@ class GalleryCategoryViewSet(viewsets.ModelViewSet):
 
 class GalleryItemViewSet(viewsets.ModelViewSet):
     """ViewSet for managing gallery items"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_class(self):

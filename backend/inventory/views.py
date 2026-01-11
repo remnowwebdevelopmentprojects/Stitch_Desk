@@ -8,6 +8,7 @@ from drf_yasg import openapi
 from django.db import transaction
 from django.db.models import Sum, F
 from decimal import Decimal
+from subscriptions.permissions import ReadOnlyIfExpired
 
 from .models import InventoryCategory, InventoryItem, OrderMaterial, StockHistory
 from .serializers import (
@@ -28,7 +29,7 @@ from orders.models import Order
 class InventoryCategoryViewSet(viewsets.ModelViewSet):
     """ViewSet for inventory categories"""
     serializer_class = InventoryCategorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
 
     def get_queryset(self):
         return InventoryCategory.objects.filter(
@@ -70,7 +71,7 @@ class InventoryCategoryViewSet(viewsets.ModelViewSet):
 
 class InventoryItemViewSet(viewsets.ModelViewSet):
     """ViewSet for inventory items"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
 
     def get_serializer_class(self):
         if self.action == 'list':

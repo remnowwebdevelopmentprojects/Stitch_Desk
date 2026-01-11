@@ -8,6 +8,7 @@ from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from subscriptions.permissions import ReadOnlyIfExpired
 
 from .models import Order
 from .serializers import OrderSerializer, OrderCreateSerializer, OrderUpdateSerializer
@@ -16,7 +17,7 @@ from customers.models import Customer
 
 class OrderViewSet(viewsets.ModelViewSet):
     """Order viewset"""
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
     
     def get_serializer_class(self):
         if self.action == 'create':

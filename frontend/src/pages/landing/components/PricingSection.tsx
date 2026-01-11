@@ -6,57 +6,47 @@ import { cn } from '@/lib/utils'
 
 const pricingTiers = [
   {
-    id: 'free',
-    name: 'Free / Starter',
-    price: '₹0',
-    period: null,
-    description: 'Perfect for getting started',
+    id: 'basic-monthly',
+    name: 'Basic',
+    price: '₹599',
+    period: 'month',
+    yearlyPrice: '₹5,990',
+    yearlyPeriod: 'year',
+    description: 'Perfect for small boutiques',
     features: [
-      'Up to 50 customers',
-      'Basic measurements',
-      '10 orders per month',
-      'Basic invoice templates',
-      'Email support'
+      'Up to 100 customers',
+      'Customer measurements',
+      '50 orders per month',
+      'Professional invoicing',
+      '50 gallery images',
+      '100 inventory items',
+      'Email support',
+      '14-day free trial'
     ],
-    cta: 'Start Free',
+    cta: 'Start Free Trial',
     featured: false
   },
   {
-    id: 'professional',
-    name: 'Professional',
-    price: '₹999',
+    id: 'pro-monthly',
+    name: 'Pro',
+    price: '₹1,099',
     period: 'month',
-    description: 'For growing boutiques',
+    yearlyPrice: '₹10,990',
+    yearlyPeriod: 'year',
+    description: 'For growing businesses',
     features: [
       'Unlimited customers',
       'Advanced measurements',
       'Unlimited orders',
       'All invoice templates',
-      'Public gallery',
-      'Inventory management',
+      'Unlimited gallery images',
+      'Unlimited inventory',
+      'Unlimited staff users',
       'Priority support',
-      'Custom branding'
+      '14-day free trial'
     ],
-    cta: 'Start 14-day Trial',
+    cta: 'Start Free Trial',
     featured: true
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: '₹2,499',
-    period: 'month',
-    description: 'For established businesses',
-    features: [
-      'Everything in Professional',
-      'Multi-user access',
-      'Advanced analytics',
-      'API access',
-      'Custom integrations',
-      'Dedicated account manager',
-      '24/7 phone support'
-    ],
-    cta: 'Contact Sales',
-    featured: false
   }
 ]
 
@@ -71,12 +61,12 @@ export const PricingSection = () => {
             Simple, Transparent Pricing
           </h2>
           <p className="text-lg text-muted-foreground">
-            Start free, upgrade when you're ready
+            All plans include a 14-day free trial. No credit card required.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto items-start">
           {pricingTiers.map((tier) => (
             <Card
               key={tier.id}
@@ -101,6 +91,9 @@ export const PricingSection = () => {
                     <span className="text-muted-foreground ml-2">/{tier.period}</span>
                   )}
                 </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  or {tier.yearlyPrice}/{tier.yearlyPeriod}
+                </div>
                 <CardDescription className="mt-2">{tier.description}</CardDescription>
               </CardHeader>
 
@@ -123,6 +116,13 @@ export const PricingSection = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Trust Badge */}
+        <div className="text-center mt-12">
+          <p className="text-sm text-muted-foreground">
+            All plans include full access to all features during the trial period
+          </p>
         </div>
       </div>
     </section>

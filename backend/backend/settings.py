@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'invoices',
     'gallery',
     'inventory',
+    'subscriptions',
 ]
 
 MIDDLEWARE = [
@@ -200,3 +201,7 @@ DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER', 'noreply@boutique.com')
 
 # For development/testing without email: Use console backend
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Razorpay Configuration
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')

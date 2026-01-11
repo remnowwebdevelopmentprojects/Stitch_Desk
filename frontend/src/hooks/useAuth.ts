@@ -39,3 +39,20 @@ export const useCurrentUser = () => {
   })
 }
 
+export const useAuth = () => {
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const { data: user } = useCurrentUser()
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    queryClient.clear()
+    navigate('/login')
+  }
+
+  return {
+    user,
+    logout,
+  }
+}

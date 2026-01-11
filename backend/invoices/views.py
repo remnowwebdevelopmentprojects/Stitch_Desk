@@ -18,6 +18,7 @@ from html import escape
 from weasyprint import HTML, CSS
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from subscriptions.permissions import ReadOnlyIfExpired
 
 from .models import Quotation, Item, Invoice, InvoiceItem
 from .serializers import ItemSerializer, QuotationSerializer, InvoiceSerializer, InvoiceCreateSerializer, InvoiceUpdateSerializer
@@ -717,7 +718,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
     Supports creating invoices from orders or standalone, PDF generation with templates.
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, ReadOnlyIfExpired]
 
     def get_queryset(self):
         queryset = Invoice.objects.filter(user=self.request.user)
