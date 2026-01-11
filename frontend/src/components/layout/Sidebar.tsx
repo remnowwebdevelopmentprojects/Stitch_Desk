@@ -8,7 +8,8 @@ import {
   Ruler,
   LogOut,
   Settings,
-  Image
+  Image,
+  Package
 } from 'lucide-react'
 import { useLogout } from '@/hooks/useAuth'
 
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Measurements', href: '/measurements', icon: Ruler },
   { name: 'Orders', href: '/orders', icon: ShoppingBag },
+  { name: 'Inventory', href: '/inventory', icon: Package },
   { name: 'Invoices', href: '/invoices', icon: FileText },
   { name: 'Gallery', href: '/gallery', icon: Image },
   { name: 'Settings', href: '/settings', icon: Settings },

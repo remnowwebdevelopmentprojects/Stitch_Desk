@@ -2,11 +2,11 @@ import { Layout } from '@/components/layout/Layout'
 import { CategoryForm, GalleryItemGrid } from '@/components/gallery'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { galleryCategoryService } from '@/services/gallery'
-import type { GalleryCategory } from '@/types/gallery'
+import { galleryCategoryService, galleryAnalyticsService } from '@/services/gallery'
+import type { GalleryCategory, GalleryAnalyticsSummary } from '@/types/gallery'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/common/Button'
-import { FolderOpen, ArrowLeft, Plus, Image as ImageIcon } from 'lucide-react'
+import { FolderOpen, ArrowLeft, Plus, Image as ImageIcon, BarChart3, Users, TrendingUp } from 'lucide-react'
 
 export const Gallery = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -15,6 +15,11 @@ export const Gallery = () => {
   const { data: categories = [], isLoading } = useQuery<GalleryCategory[]>({
     queryKey: ['gallery-categories'],
     queryFn: galleryCategoryService.getAll,
+  })
+
+  const { data: analytics } = useQuery<GalleryAnalyticsSummary>({
+    queryKey: ['gallery-analytics-summary'],
+    queryFn: galleryAnalyticsService.getSummary,
   })
 
   const selectedCategory = categories.find(c => c.id === categoryId)
@@ -32,22 +37,24 @@ export const Gallery = () => {
     return (
       <Layout>
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
+          <div>
+            {/* Breadcrumb Navigation */}
+            <div className="flex items-center gap-2 text-sm mb-4">
+              <button
                 onClick={handleBackToCategories}
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Categories
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold">{selectedCategory?.name || 'Gallery Items'}</h1>
-                <p className="text-muted-foreground mt-2">
-                  {selectedCategory?.description || 'View and manage items in this category'}
-                </p>
-              </div>
+                Gallery
+              </button>
+              <span className="text-muted-foreground">/</span>
+              <span className="font-medium">{selectedCategory?.name || 'Items'}</span>
+            </div>
+            
+            <div>
+              <h1 className="text-3xl font-bold">{selectedCategory?.name || 'Gallery Items'}</h1>
+              <p className="text-muted-foreground mt-2">
+                {selectedCategory?.description || 'View and manage items in this category'}
+              </p>
             </div>
           </div>
 
@@ -71,10 +78,55 @@ export const Gallery = () => {
           <CategoryForm onSuccess={() => {}} />
         </div>
 
+        {/* Analytics Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Views (30 days)</p>
+                <p className="text-2xl font-bold">{analytics?.total_views || 0}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <Users className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Unique Visitors</p>
+                <p className="text-2xl font-bold">{analytics?.total_unique_visitors || 0}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Avg Daily Views</p>
+                <p className="text-2xl font-bold">
+                  {analytics?.daily_breakdown?.length
+                    ? Math.round(
+                        analytics.total_views / analytics.daily_breakdown.length
+                      )
+                    : 0}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="h-72 animate-pulse bg-muted" />
+              <Card key={i} className="h-96 animate-pulse bg-muted" />
             ))}
           </div>
         ) : categories.length === 0 ? (
@@ -96,7 +148,7 @@ export const Gallery = () => {
                 className="group cursor-pointer hover:shadow-lg transition-all overflow-hidden"
                 onClick={() => handleCategoryClick(category.id)}
               >
-                <div className="relative h-64 bg-gradient-to-br from-primary/10 to-primary/5">
+                <div className="relative h-80 bg-gradient-to-br from-primary/10 to-primary/5">
                   {category.cover_image_url ? (
                     <img
                       src={category.cover_image_url}

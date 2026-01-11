@@ -320,7 +320,8 @@ export const OrderCreateModal = ({ isOpen, onClose, onSuccess }: OrderCreateModa
       return sum + itemTotal
     }, 0)
 
-    const tax = subtotal * 0.18 // 18% tax
+    // Only apply tax if default_tax_type is GST
+    const tax = settings?.default_tax_type === 'GST' ? subtotal * 0.18 : 0 // 18% tax
     
     // Format dates as YYYY-MM-DD
     const orderDateStr = orderDate ? format(orderDate, 'yyyy-MM-dd') : new Date().toISOString().split('T')[0]
@@ -878,20 +879,22 @@ export const OrderCreateModal = ({ isOpen, onClose, onSuccess }: OrderCreateModa
                             }, 0).toFixed(2)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Tax (18%):</span>
-                          <span className="font-medium">
-                            {(formData.items.reduce((sum, item) => {
-                              return sum + (item.quantity * (item.unit_price || 0))
-                            }, 0) * 0.18).toFixed(2)}
-                          </span>
-                        </div>
+                        {settings?.default_tax_type === 'GST' && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Tax (18%):</span>
+                            <span className="font-medium">
+                              {(formData.items.reduce((sum, item) => {
+                                return sum + (item.quantity * (item.unit_price || 0))
+                              }, 0) * 0.18).toFixed(2)}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex justify-between text-base font-semibold border-t pt-2">
                           <span>Total Amount:</span>
                           <span>
                             {(formData.items.reduce((sum, item) => {
                               return sum + (item.quantity * (item.unit_price || 0))
-                            }, 0) * 1.18).toFixed(2)}
+                            }, 0) * (settings?.default_tax_type === 'GST' ? 1.18 : 1)).toFixed(2)}
                           </span>
                         </div>
                       </div>

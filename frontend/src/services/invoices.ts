@@ -49,4 +49,12 @@ export const invoiceService = {
     })
     return response.data
   },
+
+  downloadPOSBill: async (id: string, template: 'thermal' | 'compact' = 'thermal'): Promise<Blob> => {
+    const response = await apiClient.get(`/invoices/${id}/pos-bill/`, {
+      params: { template },
+      responseType: 'blob',
+    })
+    return response.data
+  },
 }

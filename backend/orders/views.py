@@ -4,9 +4,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.db.models import Count, Sum, Q
+from django.utils import timezone
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from .models import Order
 from .serializers import OrderSerializer, OrderCreateSerializer, OrderUpdateSerializer
+from customers.models import Customer
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -104,3 +109,113 @@ class OrderViewSet(viewsets.ModelViewSet):
         order.save()
         
         return Response(OrderSerializer(order).data)
+    
+    @swagger_auto_schema(
+        method='get',
+        operation_description="Get dashboard statistics including customer count, pending orders, revenue, alerts, and trends",
+        tags=['Dashboard']
+    )
+    @action(detail=False, methods=['get'])
+    def dashboard_stats(self, request):
+        """Get dashboard statistics for current user"""
+        today = timezone.now().date()
+        this_month_start = today.replace(day=1)
+        
+        # Total customers
+        total_customers = Customer.objects.filter(user=request.user).count()
+        
+        # Pending orders (PENDING or IN_STITCHING)
+        pending_orders = Order.objects.filter(
+            user=request.user,
+            is_deleted=False,
+            status__in=['PENDING', 'IN_STITCHING']
+        ).count()
+        
+        # Monthly revenue
+        monthly_revenue = Order.objects.filter(
+            user=request.user,
+            is_deleted=False,
+            order_date__gte=this_month_start
+        ).aggregate(total=Sum('total_amount'))['total'] or 0
+        
+        # Unpaid invoices (orders with unpaid or partial payment)
+        unpaid_invoices = Order.objects.filter(
+            user=request.user,
+            is_deleted=False,
+            payment_status__in=['UNPAID', 'PARTIAL']
+        ).count()
+        
+        # Overdue orders (delivery_date < today and status != DELIVERED)
+        overdue_orders = Order.objects.filter(
+            user=request.user,
+            is_deleted=False,
+            delivery_date__lt=today,
+            status__in=['PENDING', 'IN_STITCHING', 'READY']
+        ).count()
+        
+        # Orders due this week
+        week_end = today + timedelta(days=7)
+        orders_due_week = Order.objects.filter(
+            user=request.user,
+            is_deleted=False,
+            delivery_date__gte=today,
+            delivery_date__lte=week_end,
+            status__in=['PENDING', 'IN_STITCHING', 'READY']
+        ).count()
+        
+        # Recent orders (last 10)
+        recent_orders = Order.objects.filter(
+            user=request.user,
+            is_deleted=False
+        ).order_by('-created_at')[:10]
+        
+        # Monthly revenue trend (last 6 months)
+        revenue_trend = []
+        for i in range(5, -1, -1):
+            month_start = (today.replace(day=1) - relativedelta(months=i))
+            month_end = month_start + relativedelta(months=1)
+            
+            revenue = Order.objects.filter(
+                user=request.user,
+                is_deleted=False,
+                order_date__gte=month_start,
+                order_date__lt=month_end
+            ).aggregate(total=Sum('total_amount'))['total'] or 0
+            
+            revenue_trend.append({
+                'month': month_start.strftime('%b'),
+                'revenue': float(revenue)
+            })
+        
+        # Payment status breakdown
+        payment_breakdown = {
+            'paid': Order.objects.filter(
+                user=request.user,
+                is_deleted=False,
+                payment_status='PAID'
+            ).count(),
+            'partial': Order.objects.filter(
+                user=request.user,
+                is_deleted=False,
+                payment_status='PARTIAL'
+            ).count(),
+            'unpaid': Order.objects.filter(
+                user=request.user,
+                is_deleted=False,
+                payment_status='UNPAID'
+            ).count(),
+        }
+        
+        stats = {
+            'total_customers': total_customers,
+            'pending_orders': pending_orders,
+            'monthly_revenue': float(monthly_revenue),
+            'unpaid_invoices': unpaid_invoices,
+            'overdue_orders': overdue_orders,
+            'orders_due_week': orders_due_week,
+            'recent_orders': OrderSerializer(recent_orders, many=True).data,
+            'revenue_trend': revenue_trend,
+            'payment_breakdown': payment_breakdown,
+        }
+        
+        return Response(stats)

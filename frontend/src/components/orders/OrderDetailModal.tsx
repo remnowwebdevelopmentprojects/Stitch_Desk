@@ -1,5 +1,6 @@
   import { useQuery } from '@tanstack/react-query'
 import { orderService } from '@/services/orders'
+import { settingsService } from '@/services/settings'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/common/Button'
 import { X } from 'lucide-react'
@@ -16,6 +17,12 @@ export const OrderDetailModal = ({ orderId, isOpen, onClose }: OrderDetailModalP
     queryKey: ['orders', orderId],
     queryFn: () => orderService.getById(orderId!),
     enabled: !!orderId && isOpen,
+  })
+
+  // Fetch settings to check tax type
+  const { data: settings } = useQuery({
+    queryKey: ['allSettings'],
+    queryFn: () => settingsService.getAllSettings(),
   })
 
   if (!isOpen || !orderId) return null
@@ -93,10 +100,12 @@ export const OrderDetailModal = ({ orderId, isOpen, onClose }: OrderDetailModalP
                         <span className="text-muted-foreground">Subtotal:</span>
                         <span>{formatCurrency(order.subtotal)}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Tax (18%):</span>
-                        <span>{formatCurrency(order.tax)}</span>
-                      </div>
+                      {settings?.default_tax_type === 'GST' && order.tax > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Tax (18%):</span>
+                          <span>{formatCurrency(order.tax)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-base font-semibold border-t pt-2 mt-2">
                         <span>Total Amount:</span>
                         <span>{formatCurrency(order.total_amount)}</span>

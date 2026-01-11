@@ -8,6 +8,7 @@ import { Orders } from './pages/orders/Orders'
 import { Invoices } from './pages/invoices/Invoices'
 import { Settings } from './pages/settings/Settings'
 import { Gallery } from './pages/gallery/Gallery'
+import { Inventory } from './pages/inventory/Inventory'
 import { PublicGallery } from './pages/public/PublicGallery'
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -76,8 +77,14 @@ function App() {
                 <Gallery />
               </ProtectedRoute>
             }
-          />
-          {/* Public routes - no auth required */}
+          />          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute>
+                <Inventory />
+              </ProtectedRoute>
+            }
+          />          {/* Public routes - no auth required */}
           <Route path="/gallery/:shopId" element={<PublicGallery />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>

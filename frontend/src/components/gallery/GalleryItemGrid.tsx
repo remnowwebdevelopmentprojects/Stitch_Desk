@@ -261,7 +261,7 @@ export const GalleryItemGrid = ({ categoryId }: GalleryItemGridProps) => {
             >
               {/* Image */}
               <div
-                className="aspect-square bg-muted relative cursor-pointer"
+                className="aspect-[4/3] bg-muted relative cursor-pointer"
                 onClick={() => setPreviewItem(item)}
               >
                 {item.primary_image_url ? (
@@ -300,10 +300,10 @@ export const GalleryItemGrid = ({ categoryId }: GalleryItemGridProps) => {
               </div>
 
               {/* Content */}
-              <div className="p-3">
+              <div className="p-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-medium truncate">{item.title}</h4>
+                    <h4 className="font-medium text-sm truncate">{item.title}</h4>
                     {item.category_name && (
                       <p className="text-xs text-muted-foreground">{item.category_name}</p>
                     )}
@@ -324,7 +324,7 @@ export const GalleryItemGrid = ({ categoryId }: GalleryItemGridProps) => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t">
+                <div className="flex items-center justify-end gap-1 mt-2 pt-2 border-t">
                   <Button
                     size="sm"
                     variant="ghost"

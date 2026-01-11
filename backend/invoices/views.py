@@ -842,6 +842,46 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @swagger_auto_schema(
+        operation_description="Generate and download POS bill for invoice",
+        manual_parameters=[
+            openapi.Parameter(
+                'template',
+                openapi.IN_QUERY,
+                description="POS template: thermal or compact (default: thermal)",
+                type=openapi.TYPE_STRING,
+                enum=['thermal', 'compact']
+            )
+        ],
+        responses={
+            200: openapi.Response('PDF file', schema=openapi.Schema(type=openapi.TYPE_FILE)),
+            500: 'PDF generation failed'
+        },
+        tags=['Invoices']
+    )
+    @action(detail=True, methods=['get'], url_path='pos-bill')
+    def pos_bill(self, request, pk=None):
+        """Generate POS bill PDF for invoice"""
+        invoice = self.get_object()
+        template = request.query_params.get('template', 'thermal')
+        
+        if template not in ['thermal', 'compact']:
+            template = 'thermal'
+
+        try:
+            shop = get_or_create_shop(request.user)
+            pdf_content = self._generate_pos_bill_pdf(invoice, template, shop)
+
+            response = HttpResponse(pdf_content, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{invoice.invoice_number}_pos.pdf"'
+            return response
+
+        except Exception as e:
+            return Response(
+                {'error': str(e), 'traceback': traceback.format_exc()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     def _generate_invoice_pdf(self, invoice, template_name, shop):
         """Generate PDF using the selected template"""
         from django.conf import settings
@@ -1088,3 +1128,128 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         </body>
         </html>
         '''
+    def _generate_pos_bill_pdf(self, invoice, template, shop):
+        """Generate POS bill PDF using the selected template"""
+        from django.conf import settings
+        from decimal import Decimal
+
+        # Prepare context data
+        formatted_date = invoice.invoice_date.strftime('%d-%b-%Y')
+
+        # Calculate tax amounts
+        subtotal = invoice.subtotal or Decimal('0')
+        cgst_amount = Decimal('0')
+        sgst_amount = Decimal('0')
+        igst_amount = Decimal('0')
+
+        if invoice.gst_type == 'intrastate':
+            cgst_amount = subtotal * (invoice.cgst_percent or Decimal('0')) / Decimal('100')
+            sgst_amount = subtotal * (invoice.sgst_percent or Decimal('0')) / Decimal('100')
+        elif invoice.gst_type == 'interstate':
+            igst_amount = subtotal * (invoice.igst_percent or Decimal('0')) / Decimal('100')
+
+        # Build items HTML
+        items_html = ''
+        for index, item in enumerate(invoice.items.all(), start=1):
+            if template == 'thermal':
+                items_html += f'''
+            <tr>
+                <td>{escape(item.item_description)[:30]}</td>
+                <td class="qty">{item.quantity}</td>
+                <td class="price">₹{item.unit_price:.2f}</td>
+                <td class="amount">₹{item.amount:.2f}</td>
+            </tr>'''
+            else:
+                items_html += f'''
+            <tr>
+                <td class="sno">{index}</td>
+                <td class="desc">{escape(item.item_description)}</td>
+                <td class="qty">{item.quantity} {item.unit}</td>
+                <td class="price">₹{item.unit_price:.2f}</td>
+                <td class="amount">₹{item.amount:.2f}</td>
+            </tr>'''
+
+        # Build tax rows HTML
+        tax_rows_html = ''
+        if invoice.gst_type == 'intrastate':
+            if template == 'thermal':
+                tax_rows_html = f'''
+        <div class="total-row">
+            <span>CGST ({invoice.cgst_percent}%):</span>
+            <span>₹{cgst_amount:.2f}</span>
+        </div>
+        <div class="total-row">
+            <span>SGST ({invoice.sgst_percent}%):</span>
+            <span>₹{sgst_amount:.2f}</span>
+        </div>'''
+            else:
+                tax_rows_html = f'''
+                    <tr>
+                        <td class="label">CGST ({invoice.cgst_percent}%):</td>
+                        <td class="value">₹{cgst_amount:.2f}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">SGST ({invoice.sgst_percent}%):</td>
+                        <td class="value">₹{sgst_amount:.2f}</td>
+                    </tr>'''
+        elif invoice.gst_type == 'interstate':
+            if template == 'thermal':
+                tax_rows_html = f'''
+        <div class="total-row">
+            <span>IGST ({invoice.igst_percent}%):</span>
+            <span>₹{igst_amount:.2f}</span>
+        </div>'''
+            else:
+                tax_rows_html = f'''
+                    <tr>
+                        <td class="label">IGST ({invoice.igst_percent}%):</td>
+                        <td class="value">₹{igst_amount:.2f}</td>
+                    </tr>'''
+
+        # Load the template
+        template_dir = os.path.join(settings.BASE_DIR, 'templates', 'pos_bills')
+        template_file = os.path.join(template_dir, f'{template}.html')
+
+        if not os.path.exists(template_file):
+            raise Exception(f'POS template not found: {template}')
+
+        with open(template_file, 'r', encoding='utf-8') as f:
+            html_template = f.read()
+
+        # Replace placeholders
+        html_content = html_template
+        html_content = html_content.replace('{{shop_name}}', escape(shop.shop_name if shop else 'My Shop'))
+        html_content = html_content.replace('{{shop_address}}', escape(shop.full_address or '') if shop else '')
+        html_content = html_content.replace('{{shop_phone}}', escape(shop.phone_number or '') if shop else '')
+        html_content = html_content.replace('{{shop_gst}}', escape(shop.gst_number or '') if shop else '')
+
+        html_content = html_content.replace('{{invoice_number}}', escape(invoice.invoice_number))
+        html_content = html_content.replace('{{invoice_date}}', formatted_date)
+
+        html_content = html_content.replace('{{customer_name}}', escape(invoice.customer.name))
+        html_content = html_content.replace('{{customer_phone}}', escape(invoice.customer.phone or ''))
+
+        html_content = html_content.replace('{{items}}', items_html)
+        html_content = html_content.replace('{{tax_rows}}', tax_rows_html)
+
+        html_content = html_content.replace('{{subtotal}}', f'₹{subtotal:.2f}')
+        html_content = html_content.replace('{{total_amount}}', f'₹{invoice.total_amount:.2f}')
+        html_content = html_content.replace('{{terms}}', escape(invoice.terms_and_conditions or '').replace('\n', '<br>'))
+
+        # Handle conditional sections for Handlebars-like syntax
+        html_content = re.sub(r'\{\{#if shop_gst\}\}(.*?)\{\{/if\}\}', 
+                             lambda m: m.group(1) if shop and shop.gst_number else '', 
+                             html_content, flags=re.DOTALL)
+        html_content = re.sub(r'\{\{#if customer_phone\}\}(.*?)\{\{/if\}\}', 
+                             lambda m: m.group(1) if invoice.customer.phone else '', 
+                             html_content, flags=re.DOTALL)
+        html_content = re.sub(r'\{\{#if terms\}\}(.*?)\{\{/if\}\}', 
+                             lambda m: m.group(1) if invoice.terms_and_conditions else '', 
+                             html_content, flags=re.DOTALL)
+
+        # Generate PDF with WeasyPrint
+        base_dir = str(settings.BASE_DIR)
+        html_doc = HTML(string=html_content, base_url=base_dir)
+
+        pdf_content = html_doc.write_pdf()
+        return pdf_content

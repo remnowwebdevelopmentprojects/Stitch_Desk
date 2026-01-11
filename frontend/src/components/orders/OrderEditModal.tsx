@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { orderService } from '@/services/orders'
 import { measurementTemplateService } from '@/services/measurementTemplates'
+import { settingsService } from '@/services/settings'
 import { Button } from '@/components/common/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -60,6 +61,12 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
     enabled: !!orderId && isOpen,
   })
 
+  // Fetch settings to check tax type
+  const { data: settings } = useQuery({
+    queryKey: ['allSettings'],
+    queryFn: () => settingsService.getAllSettings(),
+  })
+
   // Fetch templates for selected item type
   const { data: templates = [] } = useQuery({
     queryKey: ['measurement-templates', selectedItemType],
@@ -70,6 +77,7 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
   // Load order data into form when order is fetched
   useEffect(() => {
     if (order && isOpen) {
+      console.log('Loading order data:', order.status, order)
       // Convert order items to CreateOrderItem format
       const orderItems: CreateOrderItem[] = order.items?.map(item => ({
         template: item.template || '',
@@ -93,6 +101,7 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
       setOrderDate(new Date(order.order_date))
       setDeliveryDate(new Date(order.delivery_date))
       setOrderStatus(order.status || 'PENDING')
+      console.log('Set order status to:', order.status || 'PENDING')
     }
   }, [order, isOpen])
 
@@ -238,7 +247,8 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
     const subtotal = formData.items.reduce((sum, item) => {
       return sum + (item.quantity * (item.unit_price || 0))
     }, 0)
-    const tax = subtotal * 0.18
+    // Only apply tax if default_tax_type is GST
+    const tax = settings?.default_tax_type === 'GST' ? subtotal * 0.18 : 0
 
     // Format dates as YYYY-MM-DD
     const orderDateStr = format(orderDate, 'yyyy-MM-dd')
@@ -265,7 +275,7 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
   const selectedTemplateObj = templates.find(t => t.id === selectedTemplate)
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div key={orderId} className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
         <CardHeader className="pb-3 border-b">
           <div className="flex items-center justify-between">
@@ -400,36 +410,41 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
                       <div className="bg-muted p-3 rounded-md">
                         <div className="flex justify-between font-semibold">
                           <span>Total Amount:</span>
-                          <span>₹{(formData.items.reduce((sum, item) => sum + (item.quantity * (item.unit_price || 0)), 0) * 1.18).toFixed(2)}</span>
+                          <span>₹{(formData.items.reduce((sum, item) => sum + (item.quantity * (item.unit_price || 0)), 0) * (settings?.default_tax_type === 'GST' ? 1.18 : 1)).toFixed(2)}</span>
                         </div>
-                        <span className="text-xs text-muted-foreground">(Including 18% tax)</span>
+                        {settings?.default_tax_type === 'GST' && (
+                          <span className="text-xs text-muted-foreground">(Including 18% tax)</span>
+                        )}
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Right Column - Order Details */}
-                <div className="space-y-4">
+                <div key={`order-details-${orderId}`} className="space-y-4">
                   <h3 className="text-lg font-semibold">Order Details</h3>
                   
                   {/* Order Status */}
                   <div className="space-y-2">
                     <Label>Order Status</Label>
-                    <Select
-                      key={`order-status-${orderId}`}
-                      value={orderStatus}
-                      onValueChange={(value) => setOrderStatus(value as OrderStatus)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDING">Pending</SelectItem>
-                        <SelectItem value="IN_STITCHING">In Stitching</SelectItem>
-                        <SelectItem value="READY">Ready</SelectItem>
-                        <SelectItem value="DELIVERED">Delivered</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {orderStatus && (
+                      <Select
+                        key={orderStatus}
+                        defaultValue={orderStatus}
+                        value={orderStatus}
+                        onValueChange={(value) => setOrderStatus(value as OrderStatus)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PENDING">Pending</SelectItem>
+                          <SelectItem value="IN_STITCHING">In Stitching</SelectItem>
+                          <SelectItem value="READY">Ready</SelectItem>
+                          <SelectItem value="DELIVERED">Delivered</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   {/* Dates */}
@@ -466,7 +481,7 @@ export const OrderEditModal = ({ orderId, isOpen, onClose, onSuccess }: OrderEdi
                     <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label className="text-xs">Payment Status</Label>
-                        <Select value={formData.payment_status || 'UNPAID'} onValueChange={(value) => setFormData(prev => ({ ...prev, payment_status: value as any }))}>
+                        <Select key={`payment-status-${orderId}`} value={formData.payment_status || 'UNPAID'} onValueChange={(value) => setFormData(prev => ({ ...prev, payment_status: value as any }))}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="UNPAID">Unpaid</SelectItem>

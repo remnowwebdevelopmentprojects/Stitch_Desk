@@ -5,9 +5,10 @@ import { Button } from '@/components/common/Button'
 import { OrderCreateModal } from '@/components/orders/OrderCreateModal'
 import { OrderDetailModal } from '@/components/orders/OrderDetailModal'
 import { OrderEditModal } from '@/components/orders/OrderEditModal'
+import { OrderMaterialsModal } from '@/components/inventory'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { orderService } from '@/services/orders'
-import { Plus, Eye, Pencil, Search, Filter, Loader2 } from 'lucide-react'
+import { Plus, Eye, Pencil, Search, Filter, Loader2, Package } from 'lucide-react'
 import { formatCurrency } from '@/utils/currency'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -17,6 +18,8 @@ export const Orders = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null)
+  const [materialsOrderId, setMaterialsOrderId] = useState<string | null>(null)
+  const [materialsOrderNumber, setMaterialsOrderNumber] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'ALL'>('ALL')
   const queryClient = useQueryClient()
@@ -234,6 +237,17 @@ export const Orders = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          onClick={() => {
+                            setMaterialsOrderId(order.id)
+                            setMaterialsOrderNumber(order.order_number)
+                          }}
+                          title="Materials Used"
+                        >
+                          <Package className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => setEditingOrderId(order.id)}
                           title="Edit Order"
                         >
@@ -269,8 +283,18 @@ export const Orders = () => {
           onClose={() => setEditingOrderId(null)}
           onSuccess={handleOrderCreated}
         />
+
+        {/* Order Materials Modal */}
+        <OrderMaterialsModal
+          orderId={materialsOrderId}
+          orderNumber={materialsOrderNumber}
+          isOpen={!!materialsOrderId}
+          onClose={() => {
+            setMaterialsOrderId(null)
+            setMaterialsOrderNumber('')
+          }}
+        />
       </div>
     </Layout>
   )
 }
-

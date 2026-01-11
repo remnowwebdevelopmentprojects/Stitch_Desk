@@ -234,3 +234,5 @@ export interface CreateMeasurementRequest {
   notes?: string
 }
 
+// Re-export inventory types
+export * from './inventory'

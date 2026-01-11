@@ -17,6 +17,7 @@ import {
   Loader2,
   FileText,
   MoreHorizontal,
+  Receipt,
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ export const Invoices = () => {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null)
   const [deletingInvoice, setDeletingInvoice] = useState<Invoice | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [downloadingPOSId, setDownloadingPOSId] = useState<string | null>(null)
 
   const { data: invoices = [], isLoading } = useQuery({
     queryKey: ['invoices', searchQuery],
@@ -75,6 +77,25 @@ export const Invoices = () => {
       alert('Failed to download PDF')
     } finally {
       setDownloadingId(null)
+    }
+  }
+
+  const handleDownloadPOSBill = async (invoice: Invoice, template: 'thermal' | 'compact' | 'standard') => {
+    try {
+      setDownloadingPOSId(invoice.id)
+      const blob = await invoiceService.downloadPOSBill(invoice.id, template)
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${invoice.invoice_number}_pos_${template}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      alert('Failed to download POS bill')
+    } finally {
+      setDownloadingPOSId(null)
     }
   }
 
@@ -219,7 +240,7 @@ export const Invoices = () => {
                           size="sm"
                           onClick={() => handleDownloadPDF(invoice)}
                           disabled={downloadingId === invoice.id}
-                          title="Download PDF"
+                          title="Download Invoice PDF"
                         >
                           {downloadingId === invoice.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -227,6 +248,32 @@ export const Invoices = () => {
                             <Download className="h-4 w-4" />
                           )}
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={downloadingPOSId === invoice.id}
+                              title="Download POS Bill"
+                            >
+                              {downloadingPOSId === invoice.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Receipt className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleDownloadPOSBill(invoice, 'thermal')}>
+                              <Receipt className="mr-2 h-4 w-4" />
+                              Thermal (80mm)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDownloadPOSBill(invoice, 'compact')}>
+                              <FileText className="mr-2 h-4 w-4" />
+                              Compact (A6)
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="sm">
